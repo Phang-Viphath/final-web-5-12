@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Computer Shop in Phath</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="icon" type="Phath" href="me1.ico">
+</head> 
+<style>
+    @keyframes zoom-in {
+        0% {
+          transform: scale(0.3);
+          opacity: 0;
+        }
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+      .animate-zoom-in {
+        animation: zoom-in 0.4s ease-out;
+      }
+</style>    
+<body>
+    <header class="sticky top-0 z-50 bg-black border-b-4 border-yellow-500 text-white py-2 px-2 px-xxl-5">
+        <div class="container mx-auto flex items-center justify-around flex-wrap">
+            <div class="flex items-center space-x-2 w-full md:w-auto justify-between md:justify-start">
+                <img src="me1.ico" alt="Logo" class="h-6">  
+                <span class="text-lg font-bold pl-2">COMPUTER SHOP IN PHATH</span>
+                <button class="lg:hidden text-white text-2xl" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">☰</button>
+            </div>
+            
+            <div class="flex items-center border border-gray-300 rounded-lg overflow-hidden w-full md:w-1/2 mx-auto mt-2 md:mt-0">
+                <input id="search-input" type="text" placeholder="Search product name"
+                    class="px-4 py-2 text-black outline-none w-full">
+                <button id="search-button" class="bg-yellow-500 px-5 py-2 text-white">SEARCH</button>
+            </div>
+        
+            <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 px-4">
+                <div class="bg-white p-6 rounded-lg w-96 relative">
+                    <button id="close-modal" class="absolute top-2 right-2 text-gray-500 hover:text-red-500">✖</button>
+                    <h2 class="text-xl font-bold mb-2">Search Results</h2>
+                    <div id="modal-content" class="text-gray-800"></div>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-4 w-full md:w-auto justify-between lg:justify-between md:justify-between mt-2 md:mt-0 px-2">
+                <div class="flex items-center space-x-2 hover:scale-105 transition-all duration-300">
+                    <i class="bi bi-telephone text-xl text-warning"></i>
+                    <span>CONTACT<br><strong>096-361-2863</strong></span>
+                </div>
+                <div class="relative hover:scale-105 transition-all duration-300 cursor-pointer" id="cart-icon">
+                    <i class="bi bi-cart text-2xl text-warning"></i>
+                    <span id="Order" class="absolute -top-2 -right-2 bg-yellow-500 text-black text-xs px-2 py-0.5 rounded-full">0</span>
+                </div>
+            </div>
+
+            <div id="cart-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden px-4">
+                <div class="bg-white rounded-lg p-6 w-full max-w-lg max-h-[80vh] overflow-y-auto">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold">Your Cart</h2>
+                        <button id="close-cart-modal" class="text-gray-500 hover:text-red-500 text-2xl">×</button>
+                    </div>
+                    <div id="cart-items" class="space-y-4">
+                        <!-- code -->
+                    </div>
+                    <div class="mt-4">
+                        <p id="empty-cart" class="text-gray-500 text-center">Your cart is empty.</p>
+                        <p id="total-price" class="text-lg font-semibold text-right text-black hidden">Total : $0.00</p>
+                        <button id="checkout-button" class="mt-4 w-full px-4 py-2 bg-yellow-500 text-white rounded-md hover:scale-105 transition-all duration-300 hidden">
+                            <i class="bi bi-credit-card mr-1"></i> Payment
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="success-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50 px-5">
+                <div class="bg-white rounded-lg p-6 max-w-sm w-full text-center">
+                    <div class="mx-auto mb-4 w-20 h-20 rounded-full bg-green-100 flex items-center justify-center animate-zoom-in">
+                        <svg class="w-10 h-10 text-green-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                    <h2 class="text-xl font-semibold mb-4 text-green-600">Cancelled Successfully!</h2>
+                    <button id="close-success-modal" class="mt-4 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600">OK</button>
+                </div>
+            </div>            
+
+            <div id="payment-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden px-5">
+                <div class="bg-white p-6 rounded-lg max-w-sm w-full text-center">
+                    <h2 class="text-lg text-gray-600 font-semibold mb-4">Scan to Pay</h2>
+                    <img src="QRcode.jpg" alt="Bank QR Code" class="w-48 h-48 mx-auto mb-4">
+                    <p class="text-gray-600 mb-4">Please scan the QR code to complete your payment.</p>
+                    <button id="close-modal-QR" class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600">
+                        Close
+                    </button>
+                </div>
+            </div>
+
+            <div id="view-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden px-4">
+                <div class="bg-white rounded-lg p-6 w-full max-w-md">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold">Product Details</h2>
+                        <button id="close-view-modal" class="text-gray-500 hover:text-red-500 text-2xl">×</button>
+                    </div>
+                    <div id="view-product" class="text-center">
+                        <!-- code -->
+                    </div>
+                    <button id="view-add-to-cart" class="mt-4 w-full px-4 py-2 bg-yellow-500 text-white rounded-md hover:scale-105 transition-all duration-300">
+                        <i class="bi bi-cart-plus me-2"></i> Add to Cart
+                    </button>                      
+                </div>
+            </div>
+        </div>
+
+        <nav id="mobile-menu" class="hidden lg:flex flex-col lg:flex-row space-y-2 lg:space-y-0 lg:space-x-6 w-full lg:w-auto text-center lg:text-left justify-center">
+            <a href="#MACBOOK" class="flex hover:scale-105 items-center justify-center space-x-1 hover:bg-yellow-500 hover:text-white px-4 py-2 rounded transition duration-300 ease-in-out">
+                <i class="bi bi-laptop text-xl text-warning"></i> <span>LAPTOP</span>
+            </a>
+            <a href="#DESKTOP" class="flex hover:scale-105 items-center justify-center space-x-1 hover:bg-yellow-500 hover:text-white px-4 py-2 rounded transition duration-300 ease-in-out">
+                <i class="bi bi-display text-xl text-warning"></i> <span>DESKTOP</span>
+            </a>
+            <a href="#Printer" class="flex hover:scale-105 items-center justify-center space-x-1 hover:bg-yellow-500 hover:text-white px-4 py-2 rounded transition duration-300 ease-in-out">
+                <i class="bi bi-joystick text-xl text-warning"></i> <span>GAMING</span>
+            </a>
+            <a href="#Audio" class="flex hover:scale-105 items-center justify-center space-x-1 hover:bg-yellow-500 hover:text-white px-4 py-2 rounded transition duration-300 ease-in-out">
+                <i class="bi bi-headphones text-xl text-warning"></i> <span>PERIPHERAL</span>
+            </a>
+            <a href="#PC_COMPONENTS" class="flex hover:scale-105 items-center justify-center space-x-1 hover:bg-yellow-500 hover:text-white px-4 py-2 rounded transition duration-300 ease-in-out">
+                <i class="bi bi-tools text-xl text-warning"></i> <span>PC BUILDER</span>
+            </a>
+            <a href="#" class="flex hover:scale-105 items-center justify-center space-x-1 hover:bg-yellow-500 hover:text-white px-4 py-2 rounded transition duration-300 ease-in-out">
+                <i class="bi bi-journal-text text-xl text-warning"></i> <span>BLOGS</span>
+            </a>
+        </nav>
+    </header>
+
+    <main>
+        <div class="max-w-7xl mx-auto p-4 flex flex-col lg:flex-row gap-4">
+            <div class="w-full lg:w-1/4 bg-white shadow-lg rounded-lg">
+                <div class="p-4 bg-black text-white flex items-center justify-between rounded">
+                    <span class="font-bold hover:scale-105 transition-all duration-300">CATEGORIES</span>
+                    <button id="menuToggle" class="lg:hidden text-yellow-500 text-2xl hover:scale-105 transition-all duration-300">
+                        <i class="bi bi-list"></i>
+                    </button>                      
+                </div>
+                <ul id="menuList" class="p-4 space-y-3 hidden lg:block">
+                    <li class="flex items-center space-x-3 text-gray-700 hover:text-yellow-500 cursor-pointer hover:scale-105 transition-all duration-300">
+                        <i class="bi bi-laptop text-warning"></i><span><a href="#MACBOOK">Laptop</a></span>
+                    </li>
+                    <li class="flex items-center space-x-3 text-gray-700 hover:text-yellow-500 cursor-pointer hover:scale-105 transition-all duration-300">
+                        <i class="bi bi-display text-warning"></i><span><a href="#DESKTOP">Desktop</a></span>
+                    </li>
+                    <li class="flex items-center space-x-3 text-gray-700 hover:text-yellow-500 cursor-pointer hover:scale-105 transition-all duration-300">
+                        <i class="bi bi-printer text-warning"></i><span><a href="#Printer">Printer & Scanner</a></span>
+                    </li>
+                    <li class="flex items-center space-x-3 text-gray-700 hover:text-yellow-500 cursor-pointer hover:scale-105 transition-all duration-300">
+                        <i class="bi bi-headphones text-warning"></i><span><a href="#Audio">Audio Device</a></span>
+                    </li>
+                    <li class="flex items-center space-x-3 text-gray-700 hover:text-yellow-500 cursor-pointer hover:scale-105 transition-all duration-300">
+                        <i class="bi bi-tools text-warning"></i><span><a href="#PC_COMPONENTS">PC Components</a></span>
+                    </li>
+                    <li class="flex items-center space-x-3 text-gray-700 hover:text-yellow-500 cursor-pointer hover:scale-105 transition-all duration-300">
+                        <i class="bi bi-shield-lock text-warning"></i><span>Security System</span>
+                    </li>
+                    <li class="flex items-center justify-between border-b pb-2 hover:scale-105 transition-all duration-300">
+                        <div class="flex items-center space-x-2">
+                            <i class="bi bi-usb-plug text-warning"></i>
+                            <span>ORICO 4 PORTS USB</span>
+                        </div>
+                        <span class="text-red-500">From $12</span>
+                    </li>
+                    <li class="flex items-center justify-between border-b pb-2 hover:scale-105 transition-all duration-300">
+                        <div class="flex items-center space-x-2">
+                            <i class="bi bi-device-ssd text-warning"></i>
+                            <span>SAMSUNG 990 PRO</span>
+                        </div>
+                        <span class="text-red-500">From $110</span>
+                    </li>
+                    <li class="flex items-center justify-between border-b pb-2 hover:scale-105 transition-all duration-300">
+                        <div class="flex items-center space-x-2">
+                            <i class="bi bi-battery-charging text-warning"></i>
+                            <span>APC BACK-UPS 750VA</span>
+                        </div>
+                        <span class="text-red-500">From $125</span>
+                    </li>
+                    <li class="flex items-center justify-between border-b pb-2 hover:scale-105 transition-all duration-300">
+                        <div class="flex items-center space-x-2">
+                            <i class="bi bi-motherboard text-warning"></i>
+                            <span>MSI MAG B850</span>
+                        </div>
+                        <span class="text-red-500">From $235</span>
+                    </li>
+                    <li class="flex items-center justify-between border-b pb-2 hover:scale-105 transition-all duration-300">
+                        <div class="flex items-center space-x-2">
+                            <i class="bi bi-projector text-warning"></i>
+                            <span>ACER PROJECTOR</span>
+                        </div>
+                        <span class="text-red-500">From $365</span>
+                    </li>
+                    <li class="flex items-center justify-between border-b pb-2 hover:scale-105 transition-all duration-300">
+                        <div class="flex items-center space-x-2">
+                            <i class="bi bi-cpu text-warning"></i>
+                            <span>CORE ULTRA 9</span>
+                        </div>
+                        <span class="text-red-500">From $569</span>
+                    </li>
+                    <li class="flex items-center justify-between mt-4">
+                        <div class="flex space-x-2">
+                            <button class="mt-2 px-1.5 py-1.5 text-sm bg-[#26c9fc] text-white rounded-md hover:scale-105 transition-all duration-300 flex items-center space-x-1">
+                                <i class="bi bi-telegram text-base"></i>
+                                <a href="https://t.me/PHANG_VIPHATH">Telegram</a>
+                            </button>
+                            <button class="mt-2 px-1.5 py-1.5 text-sm bg-[#060b0d] text-white rounded-md hover:scale-105 transition-all duration-300 flex items-center space-x-1">
+                                <i class="bi bi-tiktok text-base"></i>
+                                <a href="https://www.tiktok.com/@01001001.01010100">Tiktok</a>
+                            </button>
+                            <button class="mt-2 px-1.5 py-1.5 text-sm bg-[#0865ff] text-white rounded-md hover:scale-105 transition-all duration-300 flex items-center space-x-1">
+                                <i class="bi bi-facebook text-base"></i>
+                                <a href="https://www.facebook.com/share/1AK2PkuQH2/?mibextid=wwXIfr">Facebook</a>
+                            </button>
+                        </div>
+                    </li>                    
+                </ul>
+            </div>
+
+            <div class="w-full lg:w-3/4">
+                <div class="container-fluid p-0">
+                    <div class="position-relative">
+                      <img id="sliderImage" src="https://www.goldonecomputer.com/image/cache/catalog/Banner%20and%20Slide/250221%20Modern%20MD271UL-915x420.jpg"
+                           class="img-fluid w-100 d-block rounded" alt="Slide">
+                        <!-- code -->
+                      <button id="prev" class="btn btn-dark position-absolute top-50 start-0 translate-middle-y ml-2">
+                        ❮
+                      </button>
+                      <button id="next" class="btn btn-dark position-absolute top-50 end-0 translate-middle-y mr-2">
+                        ❯
+                      </button>
+                    </div>
+                  </div>               
+                
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4">
+                    <button class="bg-black text-yellow-500 p-3 rounded-lg flex items-center justify-center gap-2 hover:scale-105 transition-all duration-300">
+                        <i class="bi bi-joystick"></i> GAMING LAPTOP
+                    </button>
+                    <button class="bg-black text-yellow-500 p-3 rounded-lg flex items-center justify-center gap-2 hover:scale-105 transition-all duration-300">
+                        <i class="bi bi-laptop"></i> MACBOOK
+                    </button>
+                    <button class="bg-black text-yellow-500 p-3 rounded-lg flex items-center justify-center gap-2 hover:scale-105 transition-all duration-300">
+                        <i class="bi bi-display"></i> DESIGNER DESKTOP
+                    </button>
+                    <button class="bg-black text-yellow-500 p-3 rounded-lg flex items-center justify-center gap-2 hover:scale-105 transition-all duration-300">
+                        <i class="bi bi-headphones"></i> GAMING GEAR
+                    </button>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5">
+                    <img src="https://www.goldonecomputer.com/image/catalog/Banner and Slide/230831 Security 1.jpg" class="w-full rounded-lg shadow-lg hover:scale-105 transition-all duration-300" alt="Ad 1">
+                    <img src="https://www.goldonecomputer.com/image/catalog/Banner and Slide/230831 Security 2.jpg" class="w-full rounded-lg shadow-lg hover:scale-105 transition-all duration-300" alt="Ad 2">
+                </div>
+            </div>
+        </div>
+
+        <button class="fixed bottom-6 right-6 bg-yellow-500 text-white px-3 py-2 rounded-full shadow-lg flex items-center">
+            <a href="https://t.me/PHANG_VIPHATH"><i class="bi bi-chat-left-text me-2"></i>Chat</a>
+        </button>
+
+        <script>
+            document.getElementById('menuToggle').addEventListener('click', function () {
+                document.getElementById('menuList').classList.toggle('hidden');
+            });
+        </script>
+        <div class="max-w-7xl mx-auto p-4 flex flex-col lg:flex-row gap-4">
+            <div class="w-full lg:w-1/4 bg-white shadow-lg rounded-lg p-4">
+                <h2 class=" px-4 py-2 bg-yellow-500 text-white rounded-md hover:scale-105 transition-all duration-300">FEATURE PRODUCT LINE</h2>
+                <ul id="data-line" class="mt-4 space-y-4">
+                    <!-- code -->
+                </ul>
+            </div>
+            <div class="w-full lg:w-3/4">
+                <div>
+                    <h2 class="text-lg font-semibold bg-yellow-500 text-white px-4 py-2 inline-block hover:scale-105 transition-all duration-300">FROM THE BLOG</h2>
+                    <div id="form-blog" class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
+                        <!-- code -->
+                    </div>
+                    <button class="mt-3 px-4 py-2 bg-yellow-500 text-white rounded-md hover:scale-105 transition-all duration-300">
+                        <i class="bi bi-box-seam me-2"></i> All Products
+                    </button>                      
+                </div>
+                <div id="category-computer">
+                    <!-- code -->
+                </div>
+                <div id="view-all-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 px-4">
+                    <div class="bg-white rounded-lg p-6 max-w-5xl w-full h-[80vh] overflow-y-auto relative">
+                        <button id="close-view-all" class="absolute top-2 right-2 text-gray-500 hover:text-red-500 text-2xl">×</button>
+                        <h2 class="text-xl font-bold mb-4 text-center text-blue-600">All Items</h2>
+                        <div id="view-all-content" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                            <!-- code -->
+                        </div>
+                    </div>
+                </div>                
+                <div id="new-cart-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50 px-4">
+                    <div class="bg-white rounded-lg p-6 w-full max-w-md">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-semibold">Create New Cart</h2>
+                            <button id="close-new-cart-modal" class="text-gray-500 hover:text-red-500 text-2xl">×</button>
+                        </div>
+                        <form id="new-cart-form">
+                            <div class="mb-4">
+                                <label for="cart-name" class="block text-sm font-medium text-gray-700">Cart Name</label>
+                                <input type="text" id="cart-name" name="cart-name" class="w-full p-2 border rounded-md" required>
+                            </div>
+                            <div class="mb-4">
+                                <label for="cart-spec" class="block text-sm font-medium text-gray-700">Specifications</label>
+                                <textarea id="cart-spec" name="cart-spec" class="w-full p-2 border rounded-md" rows="3" required></textarea>
+                            </div>
+                            <div class="mb-4">
+                                <label for="cart-price" class="block text-sm font-medium text-gray-700">Price ($)</label>
+                                <input type="number" id="cart-price" name="cart-price" step="0.01" min="0" class="w-full p-2 border rounded-md" required>
+                            </div>
+                            <div class="mb-4">
+                                <label for="cart-image" class="block text-sm font-medium text-gray-700">Image URL</label>
+                                <input type="url" id="cart-image" name="cart-image" class="w-full p-2 border rounded-md" required>
+                            </div>
+                            <div class="flex justify-end space-x-2">
+                                <button type="button" id="cancel-new-cart" class="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400">Cancel</button>
+                                <button id="Save" type="submit" class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600">Save Cart</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div id="success-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50 px-5">
+                    <div class="bg-white rounded-lg p-6 max-w-sm w-full text-center">
+                        <div class="mx-auto mb-4 w-20 h-20 rounded-full bg-green-100 flex items-center justify-center animate-zoom-in">
+                            <svg class="w-10 h-10 text-green-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                        </div>
+                        <h2 class="text-xl font-semibold mb-4 text-green-600">Cart Created Successfully!</h2>
+                        <button id="close-success-modal" class="mt-4 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600">OK</button>
+                    </div>
+                </div>                                          
+                <div class="bg-white p-4 shadow rounded-lg mt-6">
+                    <div class="flex items-center justify-between">
+                        <button class="text-gray-600 text-2xl">❮</button>
+                        <div id="Brands-Name" class="flex space-x-6 overflow-x-auto">
+                            <!-- code -->
+                        </div>
+                        <button class="text-gray-600 text-2xl">❯</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer class="bg-gray-800 text-white flex flex-wrap md:justify-around justify-between py-8 border-t-4 border-yellow-500 mt-7 px-4 md:px-16">
+        <ul class="space-y-2 mb-4">
+            <li><a href="#" class="hover:text-yellow-400">Home</a></li>
+            <li><a href="#" class="hover:text-yellow-400">About Us</a></li>
+            <li><a href="#" class="hover:text-yellow-400">Contact Us</a></li>
+            <li><a href="#" class="hover:text-yellow-400">Terms & Conditions</a></li>
+            <li><a href="#" class="hover:text-yellow-400">Privacy Policy</a></li>
+            <li><a href="#" class="hover:text-yellow-400">FAQ</a></li>
+        </ul>
+        <ul class="space-y-4 flex md:flex-col flex-row gap-4 mb-4">
+            <li><a href="https://www.facebook.com/share/1AK2PkuQH2/?mibextid=wwXIfr" class="text-2xl text-blue-800 hover:text-yellow-400"><i class="bi bi-facebook"></i></a></li>
+            <li><a href="https://t.me/PHANG_VIPHATH" class="text-2xl text-blue-500 hover:text-yellow-400"><i class="bi bi-telegram"></i></a></li>
+            <li><a href="https://www.tiktok.com/@01001001.01010100" class="text-2xl text-black hover:text-yellow-400"><i class="bi bi-tiktok"></i></a></li>
+        </ul>
+        <ul class="space-y-2 mb-4">
+            <li>© 2022 computer shop in phath. All rights reserved.</li>
+            <li><a href="#" class="hover:text-yellow-400">Privacy Policy</a></li>
+            <li><a href="#" class="hover:text-yellow-400">Terms & Conditions</a></li>
+            <li><a href="#" class="hover:text-yellow-400">Contact Us</a></li>
+        </ul>
+        <ul class="space-y-2 text-center mb-4">
+            <li><img src="me1.ico" alt="Golden Computer" class="w-20 h-20"></li>
+            <li class="text-lg font-semibold">COMPUTER SHOP IN PHATH</li>
+        </ul>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="data.js"></script>
+</body>
+</html>
