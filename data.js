@@ -1,3 +1,6 @@
+document.getElementById('menuToggle').addEventListener('click', function () {
+    document.getElementById('menuList').classList.toggle('hidden');
+});
 $(function () {
     const images = [
       "https://www.goldonecomputer.com/image/cache/catalog/Banner%20and%20Slide/250221%20Modern%20MD271UL-915x420.jpg",
