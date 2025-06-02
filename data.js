@@ -203,6 +203,7 @@ const Products_Computer = [
     },
     {
         "category": "GAMING GEAR",
+        "harf" : "GEAR",
         "products": [
             { "name": "MOUSE ONIKUMA CW929 USB", "spec": "GAMING RGB", "price": "12.00", "image": "https://www.goldonecomputer.com/image/cache/catalog/Products/Gaming%20Gear/Gaming%20Mouse/CW929-1-200x200.png" },
             { "name": "Razer BlackShark V2 X Gaming", "spec": "Headset 7.1 Surround", "price": "55.00", "image": "https://www.goldonecomputer.com/image/cache/catalog/Products/Gaming%20Gear/Gaming%20Headset/blackshark-v2-x-1-200x200.jpg" },
@@ -373,6 +374,7 @@ function Category_Computer() {
     if (!category_computer) return;
 
     const newCarts = JSON.parse(localStorage.getItem('newCarts')) || [];
+    const likedProducts = JSON.parse(localStorage.getItem('likedProducts')) || {};
 
     category_computer.innerHTML = Products_Computer.map(category => {
         const categoryNewCarts = newCarts.filter(cart => cart.category === category.category);
@@ -386,18 +388,15 @@ function Category_Computer() {
                             <p class="text-sm font-semibold mt-2">${product.name}</p>
                             <p class="text-gray-500 text-xs">${product.spec}</p>
                             <p class="text-green-600 font-semibold">$ ${product.price}</p>
-                            <div class="flex justify-center space-x-2 mt-3 transition duration-300">
+                            <div class="flex justify-center space-x-4 mt-3 transition duration-300">
                                 <button class="p-1 px-2 bg-yellow-100 rounded-md hover:bg-yellow-500 hover:text-white add-to-cart" data-product='${JSON.stringify(product)}'>
                                     <i class="bi bi-cart-plus text-yellow-600"></i>
                                 </button>
                                 <button class="p-1 px-2 bg-blue-100 rounded-md hover:bg-blue-500 hover:text-white view-product" data-product='${JSON.stringify(product)}'>
                                     <i class="bi bi-eye text-blue-600"></i>
                                 </button>
-                                <button class="p-1 px-2 bg-red-100 rounded-md hover:bg-red-500 hover:text-white">
-                                    <i class="bi bi-heart-fill text-red-600"></i>
-                                </button>
-                                <button class="p-1 px-2 bg-gray-300 rounded-md hover:bg-black hover:text-white">
-                                    <i class="bi bi-circle-fill"></i>
+                                <button class="p-1 px-2 bg-red-100 rounded-md hover:bg-red-500 hover:text-white toggle-like" data-product-id="${product.id}">
+                                    <i class="bi ${likedProducts[product.id] ? 'bi-heart-fill text-red-600' : 'bi-heart text-red-600'}"></i>
                                 </button>
                             </div>
                         </div>
@@ -419,9 +418,6 @@ function Category_Computer() {
                                 <button class="p-1 px-2 bg-red-100 rounded-md hover:bg-red-500 hover:text-white delete-cart" data-created-at='${cart.createdAt}'>
                                     <i class="bi bi-trash text-red-600"></i>
                                 </button>
-                                <button class="p-1 px-2 bg-gray-300 rounded-md hover:bg-black hover:text-white">
-                                    <i class="bi bi-circle-fill text-black"></i>
-                                </button>
                             </div>
                         </div>
                     `).join('')}
@@ -435,15 +431,35 @@ function Category_Computer() {
             </div>
         `;
     }).join('');
-    
+
+    document.querySelectorAll('.toggle-like').forEach(button => {
+        button.addEventListener('click', () => {
+            const productId = button.getAttribute('data-product-id');
+            const icon = button.querySelector('i');
+            const isLiked = likedProducts[productId];
+
+            if (isLiked) {
+                delete likedProducts[productId];
+                icon.classList.remove('bi-heart-fill', 'text-red-600');
+                icon.classList.add('bi-heart', 'text-red-600');
+            } else {
+                likedProducts[productId] = true;
+                icon.classList.remove('bi-heart');
+                icon.classList.add('bi-heart-fill', 'text-red-600');
+            }
+
+            localStorage.setItem('likedProducts', JSON.stringify(likedProducts));
+        });
+    });
+
     document.querySelectorAll('.view-all-btn').forEach(button => {
         button.addEventListener('click', () => {
             const category = button.getAttribute('data-category');
             const allItems = Products_Computer.find(c => c.category === category)?.products || [];
             const newItems = newCarts.filter(c => c.category === category);
-    
+
             const content = [...allItems, ...newItems];
-    
+
             const viewAllContent = document.getElementById('view-all-content');
             viewAllContent.innerHTML = content.map(product => `
                 <div class="bg-white p-3 shadow-lg rounded-lg text-center">
@@ -453,15 +469,15 @@ function Category_Computer() {
                     <p class="text-green-600 font-semibold">$ ${product.price}</p>
                 </div>
             `).join('');
-    
+
             document.getElementById('view-all-modal').classList.remove('hidden');
         });
-    });    
-    
+    });
+
     document.getElementById('close-view-all').addEventListener('click', () => {
         document.getElementById('view-all-modal').classList.add('hidden');
     });
-    
+
     document.querySelectorAll('.add-to-cart').forEach(button => {
         button.addEventListener('click', () => {
             const product = JSON.parse(button.getAttribute('data-product'));
@@ -494,6 +510,7 @@ function Category_Computer() {
             localStorage.setItem('newCarts', JSON.stringify(newCarts));
             category_computer.innerHTML = '';
             Category_Computer();
+            document.getElementById('success-modal').classList.remove('hidden');
         });
     });
 
@@ -524,21 +541,13 @@ function Category_Computer() {
             document.getElementById('new-cart-modal').classList.add('hidden');
             category_computer.innerHTML = '';
             Category_Computer();
+            document.getElementById('success-modal').classList.remove('hidden');
         });
     }
 
-
-    document.getElementById('new-cart-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        document.getElementById('new-cart-modal').classList.add('hidden');
-        document.getElementById('success-modal').classList.remove('hidden');
-        this.reset();
-    });
-
-    document.getElementById('close-success-modal').addEventListener('click', function() {
+    document.getElementById('close-success-modal').addEventListener('click', function () {
         document.getElementById('success-modal').classList.add('hidden');
     });
-
 
     const closeNewCartModal = document.getElementById('close-new-cart-modal');
     if (closeNewCartModal) {
